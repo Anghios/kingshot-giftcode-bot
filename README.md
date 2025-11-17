@@ -65,3 +65,5 @@ python bot.py --visible
 ## Disclaimer
 
 This bot is for personal use only. Use at your own risk.
+
+**Legal Notice:** The legality of using automated tools to interact with game services may vary by jurisdiction and may violate the game's Terms of Service. The author does not guarantee that using this bot is legal or permitted. You are solely responsible for ensuring compliance with all applicable laws and terms of service in your region. Use this software at your own risk and responsibility.

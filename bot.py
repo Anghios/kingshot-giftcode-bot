@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Bot de Kingshot - Version Headless con Logging
+Kingshot Bot - Headless Version with Logging
 """
 
 from selenium import webdriver
@@ -23,14 +23,14 @@ except ImportError:
 
 def fetch_active_gift_codes():
     if not HAS_SCRAPING:
-        print("[ERROR] Necesitas instalar requests y beautifulsoup4:")
+        print("[ERROR] You need to install requests and beautifulsoup4:")
         print("        pip install requests beautifulsoup4")
         return []
 
     url = "https://kingshot.net/gift-codes"
 
     try:
-        print("[*] Obteniendo codigos activos desde kingshot.net...")
+        print("[*] Fetching active codes from kingshot.net...")
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
@@ -39,7 +39,7 @@ def fetch_active_gift_codes():
         all_text = soup.get_text()
         active_codes = []
 
-        # Patron exacto: Active + codigo + (Copy o Expires)
+        # Exact pattern: Active + code + (Copy or Expires)
         pattern = r'Active([A-Za-z0-9]{5,20})(?:Copy|Expires)'
         matches = re.findall(pattern, all_text)
 
@@ -49,12 +49,12 @@ def fetch_active_gift_codes():
 
         active_codes = list(dict.fromkeys(active_codes))[:20]
         if active_codes:
-            print(f"[+] Encontrados {len(active_codes)} codigos activos:")
+            print(f"[+] Encontrados {len(active_codes)} active codes:")
             for code in active_codes:
                 print(f"    - {code}")
             return active_codes
         else:
-            print("[!] No se encontraron codigos activos")
+            print("[!] No active codes found")
             return []
 
     except Exception as e:
@@ -67,21 +67,21 @@ class KingshotBotHeadless:
         self.url = "https://ks-giftcode.centurygame.com/"
         self.headless = headless
 
-        # Configurar logging
+        # Configure logging
         self.setup_logging()
 
-        # Configurar Chrome
+        # Configure Chrome
         options = webdriver.ChromeOptions()
 
         if headless:
-            # Múltiples flags para asegurar modo headless
+            # Multiple flags to ensure headless mode
             options.add_argument('--headless=new')
             options.add_argument('--headless')  # Sintaxis antigua por compatibilidad
             options.add_argument('--disable-gpu')
-            options.add_argument('--window-position=-2400,-2400')  # Fuera de pantalla
-            self.log_info("Modo headless activado (navegador INVISIBLE)")
+            options.add_argument('--window-position=-2400,-2400')  # Off screen
+            self.log_info("Headless mode enabled (INVISIBLE browser)")
         else:
-            self.log_info("Modo visible activado")
+            self.log_info("Visible mode enabled")
 
         options.add_argument('--disable-blink-features=AutomationControlled')
         options.add_argument('--window-size=1920,1080')
@@ -92,21 +92,21 @@ class KingshotBotHeadless:
         options.add_experimental_option('excludeSwitches', ['enable-automation'])
         options.add_experimental_option('useAutomationExtension', False)
 
-        # Suprimir logs de Chrome
+        # Suppress Chrome logs
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
-        self.log_info("Iniciando ChromeDriver...")
+        self.log_info("Starting ChromeDriver...")
         self.driver = webdriver.Chrome(options=options)
         self.wait = WebDriverWait(self.driver, 20)
-        self.log_success("ChromeDriver iniciado correctamente")
+        self.log_success("ChromeDriver started successfully")
 
     def setup_logging(self):
-        """Configura el sistema de logging"""
-        # Crear nombre de archivo con timestamp
+        """Configure logging system"""
+        # Create filename with timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_filename = f"bot_log_{timestamp}.txt"
 
-        # Configurar logging
+        # Configure logging
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s [%(levelname)s] %(message)s',
@@ -119,41 +119,41 @@ class KingshotBotHeadless:
 
         self.logger = logging.getLogger(__name__)
         self.logger.info("="*70)
-        self.logger.info("BOT DE CODIGOS DE REGALO - KINGSHOT")
+        self.logger.info("KINGSHOT GIFT CODE BOT")
         self.logger.info("="*70)
-        self.logger.info(f"Archivo de log: {log_filename}")
+        self.logger.info(f"Log file: {log_filename}")
         self.logger.info(f"Player ID: {self.player_id}")
 
     def log_info(self, msg):
-        """Log nivel INFO"""
+        """INFO level log"""
         self.logger.info(f"[*] {msg}")
 
     def log_success(self, msg):
-        """Log de éxito"""
+        """Success log"""
         self.logger.info(f"[+] {msg}")
 
     def log_error(self, msg):
-        """Log de error"""
+        """Error log"""
         self.logger.error(f"[ERROR] {msg}")
 
     def log_warning(self, msg):
-        """Log de advertencia"""
+        """Warning log"""
         self.logger.warning(f"[!] {msg}")
 
     def log_debug(self, msg):
-        """Log de debug"""
+        """Debug log"""
         self.logger.debug(f"[DEBUG] {msg}")
 
     def wait_for_vue(self):
-        """Espera a que Vue.js termine de cargar"""
-        self.log_info("Esperando a que Vue.js cargue...")
+        """Wait for Vue.js to finish loading"""
+        self.log_info("Waiting for Vue.js to load...")
         time.sleep(3)
         self.wait.until(lambda d: len(d.find_element(By.ID, "app").text) > 0)
         time.sleep(1)
-        self.log_success("Vue.js cargado correctamente")
+        self.log_success("Vue.js loaded successfully")
 
     def find_all_clickables(self):
-        """Encuentra todos los elementos clickeables"""
+        """Find all clickable elements"""
         clickables = []
         selectors = ["div[class*='btn']", "div[class*='button']", "button"]
 
@@ -169,18 +169,18 @@ class KingshotBotHeadless:
         return clickables
 
     def take_screenshot(self, name):
-        """Toma un screenshot y registra en el log (DESACTIVADO)"""
-        # Screenshots desactivados - no hacer nada
+        """Take screenshot and log it (DISABLED)"""
+        # Screenshots disabled - do nothing
         pass
 
     def dismiss_modal(self):
-        """Cierra cualquier modal o mascara que este bloqueando la interfaz"""
+        """Close any modal or mask blocking the interface"""
         try:
-            self.log_info("Verificando si hay modal activo...")
+            self.log_info("Checking for active modal...")
             time.sleep(1)
 
-            # Intentar encontrar y cerrar el modal
-            # Metodo 1: Buscar boton de cerrar (X, OK, Close, etc)
+            # Try to find and close modal
+            # Method 1: Find close button (X, OK, Close, etc)
             close_selectors = [
                 "div[class*='close']",
                 "button[class*='close']",
@@ -194,27 +194,27 @@ class KingshotBotHeadless:
                     buttons = self.driver.find_elements(By.CSS_SELECTOR, selector)
                     for btn in buttons:
                         if btn.is_displayed():
-                            self.log_info(f"Encontrado boton de cerrar: {btn.text or 'sin texto'}")
+                            self.log_info(f"Found close button: {btn.text or 'no text'}")
                             btn.click()
                             time.sleep(1)
-                            self.log_success("Modal cerrado con boton")
+                            self.log_success("Modal closed with button")
                             return True
                 except:
                     continue
 
-            # Metodo 2: Hacer clic en la mascara (mask) de fondo
+            # Method 2: Click on background mask
             try:
                 mask = self.driver.find_element(By.CSS_SELECTOR, "div.mask")
                 if mask.is_displayed():
-                    self.log_info("Encontrada mascara de fondo, haciendo clic para cerrar...")
+                    self.log_info("Found background mask, clicking to close...")
                     mask.click()
                     time.sleep(1)
-                    self.log_success("Modal cerrado haciendo clic en mascara")
+                    self.log_success("Modal closed by clicking mask")
                     return True
             except:
                 pass
 
-            # Metodo 3: Forzar cierre con JavaScript
+            # Method 3: Force close with JavaScript
             try:
                 self.driver.execute_script("""
                     var masks = document.querySelectorAll('.mask, [class*="mask"]');
@@ -227,31 +227,31 @@ class KingshotBotHeadless:
                         modal.style.display = 'none';
                     });
                 """)
-                self.log_success("Modal forzado a cerrar con JavaScript")
+                self.log_success("Modal force closed with JavaScript")
                 time.sleep(1)
                 return True
             except:
                 pass
 
-            self.log_info("No se encontro modal activo")
+            self.log_info("No active modal found")
             return False
 
         except Exception as e:
-            self.log_warning(f"Error al intentar cerrar modal: {str(e)}")
+            self.log_warning(f"Error trying to close modal: {str(e)}")
             return False
 
     def login(self):
-        """Realiza login con Player ID"""
-        self.log_info(f"Abriendo {self.url}")
+        """Login with Player ID"""
+        self.log_info(f"Opening {self.url}")
         self.driver.get(self.url)
 
         try:
-            # Esperar Vue.js
+            # Wait for Vue.js
             self.wait_for_vue()
             self.take_screenshot("step_01_inicial")
 
-            # Buscar campo de Player ID
-            self.log_info("Buscando campo de Player ID...")
+            # Find Player ID field
+            self.log_info("Looking for Player ID field...")
             inputs = self.driver.find_elements(By.CSS_SELECTOR, "input[type='text']")
 
             if not inputs:
@@ -259,73 +259,73 @@ class KingshotBotHeadless:
                 inputs = [inp for inp in all_inputs if inp.is_displayed()]
 
             if not inputs:
-                self.log_error("No se encontro el campo de Player ID")
+                self.log_error("Player ID field not found")
                 return False
 
             player_id_field = inputs[0]
             placeholder = player_id_field.get_attribute('placeholder') or ''
-            self.log_success(f"Campo encontrado: '{placeholder}'")
+            self.log_success(f"Field found: '{placeholder}'")
 
-            # Ingresar Player ID
-            self.log_info(f"Ingresando Player ID: {self.player_id}")
+            # Enter Player ID
+            self.log_info(f"Entering Player ID: {self.player_id}")
             player_id_field.click()
             time.sleep(0.5)
             player_id_field.clear()
             player_id_field.send_keys(self.player_id)
             time.sleep(0.5)
-            self.log_success("Player ID ingresado correctamente")
+            self.log_success("Player ID entered successfully")
 
             self.take_screenshot("step_02_player_id_ingresado")
 
-            # Buscar botón de login
-            self.log_info("Buscando boton de login...")
+            # Find login button
+            self.log_info("Looking for login button...")
             clickables = self.find_all_clickables()
-            self.log_info(f"Encontrados {len(clickables)} elementos clickeables")
+            self.log_info(f"Encontrados {len(clickables)} clickable elements")
 
             login_button = None
             for elem in clickables:
                 text = elem.text.strip().lower()
                 if text and ('login' in text or 'iniciar' in text or 'sesion' in text):
                     login_button = elem
-                    self.log_success(f"Boton encontrado: '{elem.text}'")
+                    self.log_success(f"Button found: '{elem.text}'")
                     break
 
             if not login_button:
-                self.log_error("No se encontro el boton de login")
+                self.log_error("Login button not found")
                 return False
 
-            # Hacer clic en login
-            self.log_info("Haciendo clic en boton de login...")
+            # Click login
+            self.log_info("Clicking login button...")
             login_button.click()
-            self.log_success("Clic realizado")
+            self.log_success("Click performed")
 
-            # Esperar respuesta
-            self.log_info("Esperando respuesta del servidor (7 segundos)...")
+            # Wait for response
+            self.log_info("Waiting for server response (7 seconds)...")
             time.sleep(7)
 
             self.take_screenshot("step_03_despues_login")
-            self.log_success("Login completado exitosamente")
+            self.log_success("Login completed successfully")
 
             return True
 
         except Exception as e:
-            self.log_error(f"Error en login: {str(e)}")
+            self.log_error(f"Login error: {str(e)}")
             self.take_screenshot("error_login")
             return False
 
     def redeem_code(self, code):
-        """Canjea un código de regalo"""
+        """Redeem a gift code"""
         self.logger.info("\n" + "="*60)
-        self.logger.info(f"CANJEANDO CODIGO: {code}")
+        self.logger.info(f"REDEEMING CODE: {code}")
         self.logger.info("="*60)
 
         try:
-            # Esperar actualización
-            self.log_info("Esperando actualizacion de la pagina...")
+            # Wait for update
+            self.log_info("Waiting for page update...")
             time.sleep(3)
 
-            # Buscar campo de Gift Code
-            self.log_info("Buscando campo de Gift Code...")
+            # Find Gift Code field
+            self.log_info("Looking for Gift Code field...")
             all_inputs = self.driver.find_elements(By.CSS_SELECTOR, "input[type='text']")
 
             if not all_inputs:
@@ -342,39 +342,39 @@ class KingshotBotHeadless:
                 except:
                     continue
 
-            self.log_info(f"Total: {len(visible_inputs)} inputs visibles")
+            self.log_info(f"Total: {len(visible_inputs)} visible inputs")
 
-            # Buscar campo de gift code
+            # Find gift code field
             gift_code_field = None
 
-            # Por maxlength="20"
+            # By maxlength="20"
             for inp in visible_inputs:
                 if inp.get_attribute('maxlength') == '20':
                     gift_code_field = inp
-                    self.log_success("Campo encontrado por maxlength=20")
+                    self.log_success("Field found by maxlength=20")
                     break
 
-            # Por placeholder
+            # By placeholder
             if not gift_code_field:
                 for inp in visible_inputs:
                     placeholder = inp.get_attribute('placeholder') or ''
                     if 'codigo' in placeholder.lower() or 'code' in placeholder.lower():
                         gift_code_field = inp
-                        self.log_success("Campo encontrado por placeholder")
+                        self.log_success("Field found by placeholder")
                         break
 
-            # Primer input visible
+            # First visible input
             if not gift_code_field and visible_inputs:
                 gift_code_field = visible_inputs[0]
-                self.log_warning("Usando primer input visible")
+                self.log_warning("Using first visible input")
 
             if not gift_code_field:
-                self.log_error("No se encontro el campo de Gift Code")
+                self.log_error("Gift Code field not found")
                 self.take_screenshot("error_no_gift_field")
                 return False
 
-            # Ingresar código
-            self.log_info(f"Ingresando codigo: {code}")
+            # Enter code
+            self.log_info(f"Entering code: {code}")
             self.driver.execute_script("arguments[0].scrollIntoView(true);", gift_code_field)
             time.sleep(0.5)
 
@@ -384,12 +384,12 @@ class KingshotBotHeadless:
             time.sleep(0.3)
             gift_code_field.send_keys(code)
             time.sleep(1)
-            self.log_success("Codigo ingresado correctamente")
+            self.log_success("Code entered successfully")
 
             self.take_screenshot(f"step_04_codigo_{code}_ingresado")
 
-            # Buscar botón de confirmar
-            self.log_info("Buscando boton de confirmar...")
+            # Find confirm button
+            self.log_info("Looking for confirm button...")
             clickables = self.find_all_clickables()
 
             confirm_button = None
@@ -400,56 +400,56 @@ class KingshotBotHeadless:
                         class_attr = elem.get_attribute('class') or ''
                         if 'disabled' not in class_attr.lower():
                             confirm_button = elem
-                            self.log_success(f"Boton encontrado: '{elem.text}'")
+                            self.log_success(f"Button found: '{elem.text}'")
                             break
                 except:
                     continue
 
             if not confirm_button:
-                self.log_error("No se encontro el boton de confirmar")
+                self.log_error("Confirm button not found")
                 return False
 
-            # Hacer clic en confirmar
-            self.log_info("Haciendo clic en boton de confirmar...")
+            # Click confirm
+            self.log_info("Clicking confirm button...")
             confirm_button.click()
-            self.log_success("Clic realizado")
+            self.log_success("Click performed")
 
-            # Esperar respuesta
-            self.log_info("Esperando respuesta del servidor (5 segundos)...")
+            # Wait for response
+            self.log_info("Waiting for server response (5 seconds)...")
             time.sleep(5)
 
             self.take_screenshot(f"step_05_resultado_{code}")
 
-            # Analizar resultado
+            # Analyze result
             page_text = self.driver.page_source.lower()
 
             result_success = False
             if any(word in page_text for word in ['success', 'exitoso', 'mail', 'correo']):
-                self.log_success(f"Codigo {code} canjeado exitosamente!")
+                self.log_success(f"Codigo {code} redeemed successfully!")
                 result_success = True
             elif any(word in page_text for word in ['error', 'not found', 'no existe']):
-                self.log_error(f"Error al canjear codigo {code}")
+                self.log_error(f"Error redeeming code {code}")
                 result_success = False
             else:
-                self.log_warning("No se pudo determinar el resultado con certeza")
+                self.log_warning("Could not determine result with certainty")
                 result_success = True
 
-            # Cerrar modal si existe (importante para el siguiente codigo)
+            # Close modal if exists (important for next code)
             self.dismiss_modal()
 
             return result_success
 
         except Exception as e:
-            self.log_error(f"Error al canjear: {str(e)}")
+            self.log_error(f"Redemption error: {str(e)}")
             self.take_screenshot(f"error_redeem_{code}")
             return False
 
     def close(self):
-        """Cierra el navegador"""
-        self.log_info("Cerrando navegador...")
+        """Close browser"""
+        self.log_info("Closing browser...")
         try:
             self.driver.quit()
-            self.log_success("Navegador cerrado correctamente")
+            self.log_success("Browser closed successfully")
         except:
             pass
 
@@ -459,16 +459,16 @@ if __name__ == "__main__":
         with open('login_id.txt', 'r') as f:
             player_id = f.read().strip()
         if not player_id:
-            print("[ERROR] El archivo login_id.txt esta vacio")
+            print("[ERROR] The login_id.txt file is empty")
             sys.exit(1)
     except FileNotFoundError:
-        print("[ERROR] No se encontro el archivo login_id.txt")
+        print("[ERROR] login_id.txt file not found")
         sys.exit(1)
 
     codes = fetch_active_gift_codes()
     if not codes:
-        print("[ERROR] No se pudieron obtener codigos activos")
-        print("Verifica tu conexion o visita: https://kingshot.net/gift-codes")
+        print("[ERROR] Could not fetch active codes")
+        print("Check your connection or visit: https://kingshot.net/gift-codes")
         sys.exit(1)
 
     headless = True
@@ -476,10 +476,10 @@ if __name__ == "__main__":
         headless = False
 
     print("="*70)
-    print("BOT DE CODIGOS DE REGALO - KINGSHOT")
+    print("KINGSHOT GIFT CODE BOT")
     print("="*70)
     print(f"Player ID: {player_id}")
-    print(f"Codigos a canjear: {len(codes)}")
+    print(f"Codes to redeem: {len(codes)}")
     for i, code in enumerate(codes, 1):
         print(f"  {i}. {code}")
     print("="*70)
@@ -489,7 +489,7 @@ if __name__ == "__main__":
 
     try:
         if not bot.login():
-            bot.log_error("Login fallido. Abortando.")
+            bot.log_error("Login failed. Aborting.")
             bot.close()
             sys.exit(1)
 
@@ -506,19 +506,19 @@ if __name__ == "__main__":
                 time.sleep(3)
 
         bot.logger.info("\n" + "="*70)
-        bot.logger.info("RESUMEN FINAL")
+        bot.logger.info("FINAL SUMMARY")
         bot.logger.info("="*70)
-        bot.logger.info(f"[+] Exitosos: {successful}")
-        bot.logger.info(f"[-] Fallidos: {failed}")
+        bot.logger.info(f"[+] Successful: {successful}")
+        bot.logger.info(f"[-] Failed: {failed}")
         bot.logger.info(f"[*] Total: {successful + failed}")
         bot.logger.info("="*70)
 
-        bot.log_success("Proceso completado!")
+        bot.log_success("Process completed!")
 
     except KeyboardInterrupt:
-        bot.log_warning("Proceso interrumpido por el usuario")
+        bot.log_warning("Process interrupted by user")
     except Exception as e:
-        bot.log_error(f"Error inesperado: {str(e)}")
+        bot.log_error(f"Unexpected error: {str(e)}")
         import traceback
         traceback.print_exc()
     finally:
