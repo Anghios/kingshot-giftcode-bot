@@ -2,6 +2,10 @@
 
 Automated bot for redeeming gift codes in Kingshot game. Automatically fetches active codes from [kingshot.net](https://kingshot.net/gift-codes) and redeems them for your account.
 
+## Screenshot
+
+![Kingshot Gift Code Bot](screenshots/1.png)
+
 ## Requirements
 
 - Python 3.x
